@@ -337,7 +337,7 @@ function publicMoney(value){
   return new Intl.NumberFormat('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2}).format(n);
 }
 function publicTotalFor(p){
-  return ticketList().reduce((sum,t)=>sum+(p.tickets?.[t.id]?Number(t.price||0):0),0);
+  return ticketList().reduce((sum,t)=>sum+(p.tickets?.[t.id]?priceFor(p,t):0),0);
 }
 function publicBalanceFor(p){
   return publicTotalFor(p)-Number(p.paid||0);
@@ -366,8 +366,11 @@ function renderPublic(){
   results.innerHTML = matches.map(p=>{
     const total = publicTotalFor(p);
     const balance = publicBalanceFor(p);
-    const paymentText = p.payment_confirmed ? 'تأیید شده' : (Number(p.paid||0)>0 ? 'در انتظار تأیید' : 'پرداخت نشده');
-    const paymentClass = p.payment_confirmed ? 'payment-ok' : 'payment-no';
+    const isComplete = balance <= 0.01;
+    const paymentText = isComplete
+      ? (p.payment_confirmed ? 'کامل و تأییدشده' : 'کامل؛ در انتظار تأیید')
+      : (Number(p.paid||0)>0 ? 'ناقص' : 'پرداخت نشده');
+    const paymentClass = isComplete && p.payment_confirmed ? 'payment-ok' : 'payment-no';
 
     return `<article class="person-card">
       <div class="person-name">${publicEsc(p.name)}</div>
