@@ -100,7 +100,41 @@ button,input,select{font:inherit}button{border:0;border-radius:8px;padding:9px 1
   tr.data-row td.mobile-full,tr.data-row td:last-child{grid-column:1}
 }
 
-</style></head><body><div class="wrap">
+
+#loginGate{
+  position:fixed; inset:0; z-index:99999; display:flex; align-items:center; justify-content:center;
+  background:linear-gradient(135deg,#0f172a,#1e293b); padding:20px; direction:rtl;
+}
+#loginGate.hidden{display:none}
+.login-card{
+  width:min(420px,100%); background:#fff; border-radius:22px; padding:28px;
+  box-shadow:0 24px 80px rgba(0,0,0,.35); text-align:center;
+}
+.login-card h2{margin:0 0 8px;font-size:25px;color:#111827}
+.login-card p{margin:0 0 20px;color:#64748b}
+.login-card input{
+  width:100%; box-sizing:border-box; padding:14px 16px; border:1px solid #cbd5e1;
+  border-radius:12px; font-size:20px; text-align:center; letter-spacing:5px; outline:none;
+}
+.login-card input:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.15)}
+.login-card button{
+  width:100%; margin-top:12px; padding:13px; border:0; border-radius:12px;
+  background:#2563eb; color:#fff; font-size:17px; font-weight:800; cursor:pointer;
+}
+#loginError{min-height:22px;margin-top:10px;color:#dc2626;font-weight:700}
+
+</style></head><body>
+
+<div id="loginGate">
+  <div class="login-card">
+    <h2>ورود به بخش مدیریت</h2>
+    <p>برای ویرایش اطلاعات، رمز را وارد کنید.</p>
+    <input id="adminPassword" type="password" inputmode="numeric" maxlength="4" autocomplete="current-password" placeholder="••••">
+    <button id="loginButton" type="button">ورود</button>
+    <div id="loginError"></div>
+  </div>
+</div>
+<div class="wrap">
 <h1>مدیریت بلیت‌های فرانکفورت و دوسلدورف — نسخه ۲</h1><div class="sub"><span id="syncStatus" class="status">در حال اتصال…</span></div>
 <div class="card toolbar"><button class="primary" onclick="addParticipant()">افزودن نفر</button><span class="tag ok">ورود خودکار اطلاعات اصلی فعال است</span><button onclick="openTickets()">مدیریت ستون‌های بلیت</button><button onclick="clearFilters()">پاک‌کردن فیلترها</button><button onclick="exportCSV()">خروجی CSV</button><button onclick="exportJSON()">پشتیبان JSON</button><button onclick="document.getElementById('importFile').click()">بازیابی JSON</button><input id="importFile" hidden type="file" accept=".json"><div class="grow"></div><span id="visibleCount"></span></div>
 <details id="mobileFilters" class="card mobile-filters">
@@ -350,4 +384,50 @@ async function start(){try{
  status(e.message||'خطا در اتصال',true);
 }}
 render();start();
-</script></body></html>
+</script>
+<script>
+(function(){
+  const STORAGE_KEY = 'ticketmanager_admin_access_until';
+  const ACCESS_DAYS = 30;
+  const PASSWORD = '3156';
+
+  function unlock(){
+    const until = Date.now() + ACCESS_DAYS * 24 * 60 * 60 * 1000;
+    localStorage.setItem(STORAGE_KEY, String(until));
+    document.getElementById('loginGate').classList.add('hidden');
+  }
+
+  function validSavedAccess(){
+    const until = Number(localStorage.getItem(STORAGE_KEY) || 0);
+    return until > Date.now();
+  }
+
+  function attemptLogin(){
+    const input = document.getElementById('adminPassword');
+    const error = document.getElementById('loginError');
+    if(input.value === PASSWORD){
+      error.textContent = '';
+      unlock();
+    } else {
+      error.textContent = 'رمز اشتباه است.';
+      input.value = '';
+      input.focus();
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    if(validSavedAccess()){
+      document.getElementById('loginGate').classList.add('hidden');
+      return;
+    }
+    const input = document.getElementById('adminPassword');
+    document.getElementById('loginButton').addEventListener('click', attemptLogin);
+    input.addEventListener('keydown', function(e){
+      if(e.key === 'Enter') attemptLogin();
+    });
+    setTimeout(() => input.focus(), 50);
+  });
+})();
+</script>
+
+</body></html>
