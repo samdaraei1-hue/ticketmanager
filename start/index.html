@@ -106,7 +106,106 @@ button,input,select{font:inherit}button{border:0;border-radius:8px;padding:9px 1
 @media(max-width:800px){
   tr.data-row td:last-child::before{display:block;content:"وضعیت"}
 }
-</style></head><body><div class="wrap">
+
+/* Mobile-first public lookup */
+.public-shell{max-width:760px;margin:0 auto;padding:16px}
+.public-hero{
+  background:linear-gradient(135deg,#0f172a,#1d4ed8);
+  color:#fff;border-radius:24px;padding:22px 18px;margin-bottom:16px;
+  box-shadow:0 18px 50px rgba(15,23,42,.18)
+}
+.public-hero h1{margin:0 0 8px;font-size:clamp(24px,7vw,38px);line-height:1.25}
+.public-hero p{margin:0;color:#dbeafe;font-size:15px;line-height:1.8}
+.lookup-box{
+  background:#fff;border-radius:22px;padding:16px;
+  box-shadow:0 12px 35px rgba(15,23,42,.10);position:sticky;top:8px;z-index:30
+}
+.lookup-label{display:block;font-size:15px;font-weight:800;color:#334155;margin-bottom:8px}
+.lookup-input-wrap{display:flex;gap:8px}
+#publicNameSearch{
+  width:100%;min-height:54px;border:2px solid #cbd5e1;border-radius:15px;
+  padding:0 16px;font-size:20px;font-weight:700;outline:none;background:#fff;color:#0f172a
+}
+#publicNameSearch:focus{border-color:#2563eb;box-shadow:0 0 0 4px rgba(37,99,235,.14)}
+#clearPublicSearch{
+  min-width:54px;border:0;border-radius:15px;background:#e2e8f0;color:#0f172a;
+  font-size:22px;font-weight:900;cursor:pointer
+}
+.public-hint{margin:9px 2px 0;color:#64748b;font-size:13px;line-height:1.7}
+#publicResultCount{margin:16px 2px 10px;font-size:15px;font-weight:800;color:#475569}
+#publicResults{display:grid;gap:14px}
+.person-card{
+  background:#fff;border:1px solid #e2e8f0;border-radius:22px;padding:18px;
+  box-shadow:0 10px 30px rgba(15,23,42,.07)
+}
+.person-name{font-size:27px;font-weight:900;color:#0f172a;line-height:1.3;margin-bottom:5px}
+.person-sub{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:15px}
+.person-chip{
+  background:#eff6ff;color:#1d4ed8;border-radius:999px;padding:6px 10px;
+  font-size:13px;font-weight:800
+}
+.person-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.person-item{background:#f8fafc;border-radius:14px;padding:11px}
+.person-item.full{grid-column:1/-1}
+.person-key{font-size:12px;color:#64748b;margin-bottom:4px}
+.person-value{font-size:17px;font-weight:850;color:#111827;word-break:break-word}
+.ticket-list{display:grid;gap:8px}
+.ticket-row{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  background:#f8fafc;border-radius:13px;padding:10px 12px}
+.ticket-row.yes{background:#ecfdf5}
+.ticket-name{font-size:15px;font-weight:750;color:#334155}
+.ticket-state{font-size:15px;font-weight:900}
+.ticket-row.yes .ticket-state{color:#047857}
+.ticket-row.no .ticket-state{color:#94a3b8}
+.payment-ok{color:#047857}.payment-no{color:#b45309}
+.empty-state{
+  text-align:center;background:#fff;border:1px dashed #cbd5e1;border-radius:22px;
+  padding:35px 18px;color:#64748b;font-size:16px;line-height:1.9
+}
+.public-loading{text-align:center;padding:25px;color:#64748b;font-weight:800}
+.public-footer{text-align:center;color:#94a3b8;font-size:12px;padding:22px 8px 8px}
+
+/* Hide the old table/dashboard in the public version */
+body > :not(#publicApp):not(script){display:none!important}
+#publicApp{display:block!important}
+@media(max-width:520px){
+  .public-shell{padding:10px}
+  .public-hero{padding:20px 15px;border-radius:20px}
+  .lookup-box{padding:13px;border-radius:18px}
+  #publicNameSearch{font-size:19px;min-height:56px}
+  .person-card{padding:15px;border-radius:19px}
+  .person-name{font-size:25px}
+  .person-grid{grid-template-columns:1fr}
+  .person-item.full{grid-column:auto}
+}
+
+</style></head><body>
+
+<div id="publicApp">
+  <main class="public-shell">
+    <section class="public-hero">
+      <h1>جستجوی سریع اطلاعات سفر</h1>
+      <p>نام خود را وارد کنید تا اطلاعات ثبت‌نام، بلیت‌ها و وضعیت پرداخت فوراً نمایش داده شود.</p>
+    </section>
+
+    <section class="lookup-box">
+      <label class="lookup-label" for="publicNameSearch">نام یا بخشی از نام</label>
+      <div class="lookup-input-wrap">
+        <input id="publicNameSearch" type="search" autocomplete="off" placeholder="مثلاً Sara یا Sam">
+        <button id="clearPublicSearch" type="button" aria-label="پاک کردن">×</button>
+      </div>
+      <div class="public-hint">جستجو هم‌زمان با تایپ انجام می‌شود؛ نیازی به زدن دکمه نیست.</div>
+    </section>
+
+    <div id="publicResultCount"></div>
+    <section id="publicResults">
+      <div class="public-loading">در حال دریافت اطلاعات…</div>
+    </section>
+
+    <footer class="public-footer">نسخه فقط‌خواندنی — امکان تغییر اطلاعات وجود ندارد</footer>
+  </main>
+</div>
+<div class="wrap">
 <h1>مدیریت بلیت‌های فرانکفورت و دوسلدورف — نسخه ۲</h1><div class="sub"><span id="syncStatus" class="status">در حال اتصال…</span></div>
 <div class="card toolbar"><span class="tag ok">نسخه فقط‌خواندنی — امکان ویرایش غیرفعال است</span><button onclick="clearFilters()">پاک‌کردن فیلترها</button><button onclick="exportCSV()">خروجی CSV</button><button onclick="exportJSON()">پشتیبان JSON</button><div class="grow"></div><span id="visibleCount"></span></div>
 <details id="mobileFilters" class="card mobile-filters">
@@ -202,12 +301,14 @@ async function start(){try{
      return cityOrder(a)-cityOrder(b) || Number(a.cityId||a.legacyId)-Number(b.cityId||b.legacyId);
    });
    render();
+   renderPublic();
    status('متصل به Firebase — نسخه فقط‌خواندنی');
  });
 
  onValue(ticketsRef,s=>{
    tickets=s.val()||DEFAULT_TICKETS;
    render();
+   renderPublic();
  });
 
  ready=true;
@@ -215,5 +316,122 @@ async function start(){try{
  console.error(e);
  status(e.message||'خطا در اتصال',true);
 }}
+
+function publicNormalizeText(value){
+  return String(value ?? '')
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u064B-\u065F\u0670]/g,'')
+    .replace(/[يى]/g,'ی')
+    .replace(/ك/g,'ک')
+    .replace(/\s+/g,' ')
+    .trim();
+}
+function publicEsc(value){
+  return String(value ?? '').replace(/[&<>"']/g, ch => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
+  }[ch]));
+}
+function publicMoney(value){
+  const n = Number(value || 0);
+  return new Intl.NumberFormat('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2}).format(n);
+}
+function publicTotalFor(p){
+  return ticketList().reduce((sum,t)=>sum+(p.tickets?.[t.id]?Number(t.price||0):0),0);
+}
+function publicBalanceFor(p){
+  return publicTotalFor(p)-Number(p.paid||0);
+}
+function renderPublic(){
+  const results = document.getElementById('publicResults');
+  const count = document.getElementById('publicResultCount');
+  const input = document.getElementById('publicNameSearch');
+  if(!results || !input) return;
+
+  const q = publicNormalizeText(input.value);
+  if(!q){
+    count.textContent = '';
+    results.innerHTML = '<div class="empty-state">نام خود را در کادر بالا وارد کنید.<br>نتیجه فوراً اینجا نمایش داده می‌شود.</div>';
+    return;
+  }
+
+  const matches = participants.filter(p => publicNormalizeText(p.name).includes(q));
+  count.textContent = matches.length ? `${matches.length} نتیجه پیدا شد` : 'نتیجه‌ای پیدا نشد';
+
+  if(!matches.length){
+    results.innerHTML = '<div class="empty-state">نامی با این عبارت پیدا نشد.<br>املای نام را بررسی کنید یا فقط بخشی از آن را بنویسید.</div>';
+    return;
+  }
+
+  results.innerHTML = matches.map(p=>{
+    const total = publicTotalFor(p);
+    const balance = publicBalanceFor(p);
+    const paymentText = p.payment_confirmed ? 'تأیید شده' : (Number(p.paid||0)>0 ? 'در انتظار تأیید' : 'پرداخت نشده');
+    const paymentClass = p.payment_confirmed ? 'payment-ok' : 'payment-no';
+
+    return `<article class="person-card">
+      <div class="person-name">${publicEsc(p.name)}</div>
+      <div class="person-sub">
+        <span class="person-chip">${publicEsc(p.city || '—')}</span>
+        <span class="person-chip">${p.category==='Child' ? 'کودک' : 'بزرگسال'}</span>
+        <span class="person-chip">شماره ${publicEsc(p.legacyId ?? '—')}</span>
+      </div>
+
+      <div class="person-grid">
+        ${p.category==='Child' ? `<div class="person-item"><div class="person-key">سن</div><div class="person-value">${publicEsc(p.age || '—')}</div></div>` : ''}
+        <div class="person-item">
+          <div class="person-key">روش پرداخت</div>
+          <div class="person-value">${publicEsc(p.payment_method || '—')}</div>
+        </div>
+        <div class="person-item">
+          <div class="person-key">مبلغ پرداخت‌شده</div>
+          <div class="person-value">${publicMoney(p.paid)} €</div>
+        </div>
+        <div class="person-item">
+          <div class="person-key">وضعیت پرداخت</div>
+          <div class="person-value ${paymentClass}">${paymentText}</div>
+        </div>
+        <div class="person-item">
+          <div class="person-key">مبلغ کل بلیت‌ها</div>
+          <div class="person-value">${publicMoney(total)} €</div>
+        </div>
+        <div class="person-item">
+          <div class="person-key">مانده</div>
+          <div class="person-value">${publicMoney(balance)} €</div>
+        </div>
+
+        <div class="person-item full">
+          <div class="person-key">بلیت‌ها</div>
+          <div class="ticket-list">
+            ${ticketList().map(t=>`
+              <div class="ticket-row ${p.tickets?.[t.id]?'yes':'no'}">
+                <span class="ticket-name">${publicEsc(t.name)}</span>
+                <span class="ticket-state">${p.tickets?.[t.id]?'دارد ✓':'ندارد —'}</span>
+              </div>`).join('')}
+          </div>
+        </div>
+
+        ${p.note ? `<div class="person-item full"><div class="person-key">یادداشت</div><div class="person-value">${publicEsc(p.note)}</div></div>` : ''}
+      </div>
+    </article>`;
+  }).join('');
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  const input=document.getElementById('publicNameSearch');
+  const clear=document.getElementById('clearPublicSearch');
+  if(input){
+    input.addEventListener('input',renderPublic);
+    setTimeout(()=>input.focus(),150);
+  }
+  if(clear){
+    clear.addEventListener('click',()=>{
+      input.value='';
+      renderPublic();
+      input.focus();
+    });
+  }
+});
+
 render();start();
 </script></body></html>
