@@ -123,6 +123,65 @@ button,input,select{font:inherit}button{border:0;border-radius:8px;padding:9px 1
 }
 #loginError{min-height:22px;margin-top:10px;color:#dc2626;font-weight:700}
 
+
+/* Professional admin dashboard additions */
+.admin-hero{
+  background:linear-gradient(135deg,#0f172a,#1d4ed8 72%,#2563eb);
+  color:#fff;border-radius:22px;padding:20px;margin-bottom:13px;
+  box-shadow:0 18px 45px rgba(30,64,175,.18)
+}
+.admin-hero h1{font-size:clamp(24px,4vw,37px);margin:0 0 7px}
+.admin-hero .sub{color:#dbeafe;margin:0}
+.quick-panel{position:sticky;top:8px;z-index:12}
+.quick-search-row{display:grid;grid-template-columns:minmax(220px,1fr) auto;gap:9px}
+#adminQuickSearch{
+  width:100%;min-height:50px;border:2px solid #cbd5e1;border-radius:14px;
+  padding:0 16px;font-size:18px;font-weight:700;background:#fff;outline:none
+}
+#adminQuickSearch:focus{border-color:#315efb;box-shadow:0 0 0 4px rgba(49,94,251,.12)}
+.quick-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}
+.quick-chip{
+  border:1px solid #cbd5e1;background:#fff;color:#334155;border-radius:999px;
+  padding:9px 13px;font-weight:800
+}
+.quick-chip.active{background:#315efb;color:#fff;border-color:#315efb}
+.quick-chip.good{border-color:#86efac;color:#047857}
+.quick-chip.warn{border-color:#fdba74;color:#b45309}
+.quick-chip.bad{border-color:#fca5a5;color:#b91c1c}
+.export-panel{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.export-panel strong{margin-left:5px}
+.export-button{background:#0f766e;color:#fff}
+.export-button.secondary{background:#334155}
+.metric.fin-good{border-color:#86efac;background:#f0fdf4}
+.metric.fin-warn{border-color:#fdba74;background:#fff7ed}
+.metric.fin-bad{border-color:#fca5a5;background:#fef2f2}
+.data-row .name{font-size:14px;font-weight:800}
+.payment-badge{display:inline-block;border-radius:999px;padding:5px 9px;font-size:11px;font-weight:900}
+.payment-badge.complete{background:#dcfce7;color:#166534}
+.payment-badge.pending{background:#ffedd5;color:#9a3412}
+.payment-badge.unpaid{background:#fee2e2;color:#991b1b}
+@media(min-width:801px){
+  table{font-size:13px}
+  th,td{padding:7px}
+  .data-row .name{font-size:15px}
+}
+@media(max-width:800px){
+  .admin-hero{padding:17px 14px;border-radius:18px}
+  .admin-hero h1{font-size:24px}
+  .quick-panel{top:4px}
+  .quick-search-row{grid-template-columns:1fr}
+  #adminQuickSearch{font-size:18px;min-height:54px}
+  .quick-actions{display:grid;grid-template-columns:1fr 1fr}
+  .quick-chip{border-radius:12px;padding:11px 7px}
+  .export-panel{display:grid;grid-template-columns:1fr 1fr}
+  .export-panel strong{grid-column:1/-1;text-align:center}
+  .export-panel button{width:100%}
+  tr.data-row td[data-label="نام"] input{font-size:20px!important;font-weight:900;max-width:none!important}
+  tr.data-row td[data-label="نام"]{background:#eff6ff!important;padding:12px}
+  tr.data-row td[data-label="مبلغ کل €"],
+  tr.data-row td[data-label="مانده €"]{font-size:17px;font-weight:900}
+}
+
 </style></head><body>
 
 <div id="loginGate">
@@ -135,7 +194,34 @@ button,input,select{font:inherit}button{border:0;border-radius:8px;padding:9px 1
   </div>
 </div>
 <div class="wrap">
-<h1>مدیریت بلیت‌های فرانکفورت و دوسلدورف — نسخه ۲</h1><div class="sub"><span id="syncStatus" class="status">در حال اتصال…</span></div>
+<section class="admin-hero">
+      <h1>مدیریت بلیت‌های گروهی</h1>
+      <div class="sub">ویرایش سریع شرکت‌کنندگان، کنترل پرداخت‌ها و تهیه گزارش</div>
+      <div style="margin-top:8px"><span id="syncStatus" class="status">در حال اتصال…</span></div>
+    </section>
+
+<div class="card quick-panel">
+  <div class="quick-search-row">
+    <input id="adminQuickSearch" type="search" autocomplete="off" placeholder="جستجوی سریع نام، شهر یا روش پرداخت…">
+    <button onclick="clearAllAdminFilters()">پاک کردن جستجو و فیلترها</button>
+  </div>
+  <div class="quick-actions">
+    <button class="quick-chip active" data-qfilter="all" onclick="applyQuickPaymentFilter('all',this)">همه افراد</button>
+    <button class="quick-chip good" data-qfilter="complete" onclick="applyQuickPaymentFilter('complete',this)">پرداخت کامل</button>
+    <button class="quick-chip warn" data-qfilter="unconfirmed" onclick="applyQuickPaymentFilter('unconfirmed',this)">تأییدنشده</button>
+    <button class="quick-chip bad" data-qfilter="balance" onclick="applyQuickPaymentFilter('balance',this)">دارای مانده</button>
+    <button class="quick-chip bad" data-qfilter="unpaid" onclick="applyQuickPaymentFilter('unpaid',this)">بدون پرداخت</button>
+  </div>
+</div>
+
+<div class="card export-panel">
+  <strong>استخراج گزارش:</strong>
+  <button class="export-button" onclick="exportPaymentReport('visible')">لیست فعلی</button>
+  <button class="export-button" onclick="exportPaymentReport('complete')">پرداخت کامل</button>
+  <button class="export-button" onclick="exportPaymentReport('unconfirmed')">تأییدنشده‌ها</button>
+  <button class="export-button secondary" onclick="exportPaymentReport('balance')">افراد دارای مانده</button>
+</div>
+
 <div class="card toolbar"><button class="primary" onclick="addParticipant()">افزودن نفر</button><span class="tag ok">ورود خودکار اطلاعات اصلی فعال است</span><button onclick="openTickets()">مدیریت ستون‌های بلیت</button><button onclick="clearFilters()">پاک‌کردن فیلترها</button><button onclick="exportCSV()">خروجی CSV</button><button onclick="exportJSON()">پشتیبان JSON</button><button onclick="document.getElementById('importFile').click()">بازیابی JSON</button><input id="importFile" hidden type="file" accept=".json"><div class="grow"></div><span id="visibleCount"></span></div>
 <details id="mobileFilters" class="card mobile-filters">
   <summary>فیلترها در موبایل</summary>
@@ -164,8 +250,33 @@ const totalFor=p=>ticketList().reduce((s,t)=>s+(p.tickets?.[t.id]?priceFor(p,t):
 const balanceFor=p=>totalFor(p)-(Number(p.paid)||0);const money=n=>(Math.round((Number(n)||0)*100)/100).toFixed(2);
 function status(msg,bad=false){let e=document.getElementById('syncStatus');e.textContent=msg;e.style.color=bad?'var(--bad)':'var(--good)'}
 function normalize(p,i){return {id:p.id||makeId(),legacyId:p.legacyId||i+1,city:p.city||'Frankfurt',name:p.name||'',category:p.category==='Child'?'Child':'Adult',age:p.age??'',tickets:p.tickets||{firstcliff:!!p.ticket1,oeschinensee:!!p.ticket2,train:!!p.ticket3},payment_method:p.payment_method||'',paid:Number(p.paid)||0,payment_confirmed:!!p.payment_confirmed,note:p.note||''}}
-function filterValue(key){return filters[key]??''}function setFilter(key,v){filters[key]=v;render()}
-function passes(p){return Object.entries(filters).every(([k,v])=>{if(v===''||v==null)return true;if(k.startsWith('ticket:'))return String(!!p.tickets?.[k.slice(7)])===v;if(k==='payment_confirmed')return String(!!p.payment_confirmed)===v;if(k==='total')return String(money(totalFor(p))).includes(v);if(k==='balance')return String(money(balanceFor(p))).includes(v);return String(p[k]??'').toLowerCase().includes(String(v).toLowerCase())})}
+function filterValue(key){return filters[key]??''}
+function setFilter(key,v){filters[key]=v;render()}
+function paymentState(p){
+  const paid=Number(p.paid)||0, bal=balanceFor(p);
+  if(paid<=0.001)return 'unpaid';
+  if(bal<=0.01)return p.payment_confirmed?'complete':'pending';
+  return 'pending';
+}
+function paymentStateLabel(p){
+  const state=paymentState(p);
+  if(state==='complete')return 'کامل';
+  if(state==='unpaid')return 'بدون پرداخت';
+  return p.payment_confirmed?'ناقص':'تأییدنشده';
+}
+function quickPaymentMatch(p,state){
+  if(state==='all'||!state)return true;
+  if(state==='complete')return balanceFor(p)<=0.01;
+  if(state==='unconfirmed')return !p.payment_confirmed;
+  if(state==='balance')return balanceFor(p)>0.01;
+  if(state==='unpaid')return (Number(p.paid)||0)<=0.001;
+  return true;
+}
+function passes(p){
+ const q=String(filters.__quick||'').trim().toLowerCase();
+ if(q && ![p.name,p.city,p.payment_method,p.note,p.legacyId].some(v=>String(v??'').toLowerCase().includes(q)))return false;
+ if(!quickPaymentMatch(p,filters.__paymentState||'all'))return false;
+ return Object.entries(filters).filter(([k])=>!k.startsWith('__')).every(([k,v])=>{if(v===''||v==null)return true;if(k.startsWith('ticket:'))return String(!!p.tickets?.[k.slice(7)])===v;if(k==='payment_confirmed')return String(!!p.payment_confirmed)===v;if(k==='total')return String(money(totalFor(p))).includes(v);if(k==='balance')return String(money(balanceFor(p))).includes(v);return String(p[k]??'').toLowerCase().includes(String(v).toLowerCase())})}
 function filterInput(key,type='text',options=''){if(type==='select')return `<select onchange="setFilter('${key}',this.value)"><option value="">همه</option>${options}</select>`;return `<input type="${type}" value="${esc(filterValue(key))}" onchange="setFilter('${key}',this.value)" placeholder="فیلتر">`}
 function buildHead(){let ts=ticketList();document.getElementById('thead').innerHTML=`<tr><th>ردیف</th><th>ID</th><th>شهر</th><th>نام</th><th>نوع</th><th>سن</th>${ts.map(t=>`<th>${esc(t.name)}</th>`).join('')}<th>روش پرداخت</th><th>پرداختی €</th><th>تأیید پرداخت</th><th>مبلغ کل €</th><th>مانده €</th><th>یادداشت</th><th>حذف</th></tr><tr class="filter-row"><th></th><th>${filterInput('legacyId')}</th><th>${filterInput('city','select','<option>Frankfurt</option><option>Düsseldorf</option>')}</th><th>${filterInput('name')}</th><th>${filterInput('category','select','<option value="Adult">بزرگسال</option><option value="Child">کودک</option>')}</th><th>${filterInput('age')}</th>${ts.map(t=>`<th>${filterInput('ticket:'+t.id,'select','<option value="true">دارد</option><option value="false">ندارد</option>')}</th>`).join('')}<th>${filterInput('payment_method')}</th><th>${filterInput('paid')}</th><th>${filterInput('payment_confirmed','select','<option value="true">تأیید شده</option><option value="false">تأیید نشده</option>')}</th><th>${filterInput('total')}</th><th>${filterInput('balance')}</th><th>${filterInput('note')}</th><th></th></tr>`;
 let mobile=[
@@ -196,14 +307,25 @@ document.getElementById('tbody').innerHTML=shown.map((p,row)=>`<tr class="data-r
 ${ticketList().map(t=>`<td data-label="${esc(t.name)}"><input type="checkbox" ${p.tickets?.[t.id]?'checked':''} onchange="updTicket('${p.id}','${t.id}',this.checked)"></td>`).join('')}
 <td class="mobile-full" data-label="روش پرداخت">${field(p,'payment_method',p.payment_method)}</td>
 <td data-label="پرداختی €">${field(p,'paid',p.paid,'number','num')}</td>
-<td data-label="تأیید پرداخت"><input class="confirmed" type="checkbox" ${p.payment_confirmed?'checked':''} onchange="upd('${p.id}','payment_confirmed',this.checked)"></td>
+<td data-label="تأیید پرداخت">
+<input class="confirmed" type="checkbox" ${p.payment_confirmed?'checked':''} onchange="upd('${p.id}','payment_confirmed',this.checked)">
+<span class="payment-badge ${paymentState(p)}">${paymentStateLabel(p)}</span>
+</td>
 <td class="num" data-label="مبلغ کل €">${money(totalFor(p))}</td>
 <td class="num" data-label="مانده €">${money(balanceFor(p))}</td>
 <td class="mobile-full" data-label="یادداشت">${field(p,'note',p.note,'text','name')}</td>
 <td><button class="danger" onclick="delParticipant('${p.id}')">حذف این نفر</button></td>
 </tr>`).join('');
 let ageSum=shown.reduce((s,p)=>s+(Number(p.age)||0),0),paid=shown.reduce((s,p)=>s+(Number(p.paid)||0),0),due=shown.reduce((s,p)=>s+totalFor(p),0),bal=shown.reduce((s,p)=>s+balanceFor(p),0);document.getElementById('tfoot').innerHTML=`<tr><td colspan="5">جمع ردیف‌های نمایش‌داده‌شده: ${shown.length}</td><td class="num">${ageSum}</td>${ticketList().map(t=>`<td>${shown.filter(p=>p.tickets?.[t.id]).length}</td>`).join('')}<td></td><td class="num">${money(paid)}</td><td>${shown.filter(p=>p.payment_confirmed).length}</td><td class="num">${money(due)}</td><td class="num">${money(bal)}</td><td></td><td></td></tr>`;renderSummary(shown)}
-function renderSummary(shown){let cards=ticketList().map(t=>{let selected=shown.filter(p=>p.tickets?.[t.id]),a=selected.filter(p=>p.category==='Adult').length,c=selected.filter(p=>p.category==='Child').length;return `<div class="metric"><small>${esc(t.name)}</small><b>${selected.length} نفر</b><div>بزرگسال: ${a} | کودک: ${c}</div></div>`}).join('');let due=shown.reduce((s,p)=>s+totalFor(p),0),paid=shown.reduce((s,p)=>s+(Number(p.paid)||0),0),confirmed=shown.filter(p=>p.payment_confirmed).length;cards+=`<div class="metric"><small>وضعیت مالی</small><b>${money(due-paid)} € مانده</b><div>کل: ${money(due)} € | پرداختی: ${money(paid)} €</div></div><div class="metric"><small>تأیید پرداخت</small><b>${confirmed} از ${shown.length}</b><div>${shown.length-confirmed} مورد تأییدنشده</div></div>`;document.getElementById('summary').innerHTML=cards}
+function renderSummary(shown){let cards=ticketList().map(t=>{let selected=shown.filter(p=>p.tickets?.[t.id]),a=selected.filter(p=>p.category==='Adult').length,c=selected.filter(p=>p.category==='Child').length;return `<div class="metric"><small>${esc(t.name)}</small><b>${selected.length} نفر</b><div>بزرگسال: ${a} | کودک: ${c}</div></div>`}).join('');let due=shown.reduce((s,p)=>s+totalFor(p),0),paid=shown.reduce((s,p)=>s+(Number(p.paid)||0),0),confirmed=shown.filter(p=>p.payment_confirmed).length;let full=shown.filter(p=>balanceFor(p)<=0.01).length;
+let unpaid=shown.filter(p=>(Number(p.paid)||0)<=0.001).length;
+let unconfirmed=shown.filter(p=>!p.payment_confirmed).length;
+cards+=`<div class="metric fin-good"><small>پرداخت کامل</small><b>${full} نفر</b><div>مانده صفر یا بستانکار</div></div>
+<div class="metric fin-warn"><small>تأییدنشده</small><b>${unconfirmed} نفر</b><div>نیازمند بررسی پرداخت</div></div>
+<div class="metric fin-bad"><small>بدون پرداخت</small><b>${unpaid} نفر</b><div>پرداخت ثبت نشده</div></div>
+<div class="metric"><small>وضعیت مالی</small><b>${money(due-paid)} € مانده</b><div>کل: ${money(due)} € | پرداختی: ${money(paid)} €</div></div>
+<div class="metric"><small>تأیید پرداخت</small><b>${confirmed} از ${shown.length}</b><div>${shown.length-confirmed} مورد تأییدنشده</div></div>`;
+document.getElementById('summary').innerHTML=cards}
 async function upd(id,k,v){if(!ready)return;let value=v;if(k==='paid')value=Number(v)||0;if(k==='payment_confirmed')value=!!v;await update(ref(db,`${ROOT}/participants/${id}`),{[k]:value})}
 async function updTicket(id,tid,val){await set(ref(db,`${ROOT}/participants/${id}/tickets/${tid}`),!!val)}
 async function addParticipant(){
@@ -230,10 +352,49 @@ function renderTicketSettings(){document.getElementById('ticketSettings').innerH
 async function updateTicketDef(id,k,v){if(['adultPrice','childPrice'].includes(k))v=Number(v)||0;await set(ref(db,`${ROOT}/tickets/${id}/${k}`),v)}
 async function addTicket(){let name=prompt('نام بلیت جدید:');if(!name)return;let id='t_'+Date.now().toString(36),order=ticketList().length+1;await set(ref(db,`${ROOT}/tickets/${id}`),{id,name,adultPrice:0,childPrice:0,order})}
 async function deleteTicket(id){if(!confirm('این ستون بلیت و انتخاب‌های مرتبط حذف شود؟'))return;let updates={};updates[`${ROOT}/tickets/${id}`]=null;participants.forEach(p=>updates[`${ROOT}/participants/${p.id}/tickets/${id}`]=null);await update(ref(db),updates)}
+
+function clearAllAdminFilters(){
+  filters={};
+  const q=document.getElementById('adminQuickSearch');
+  if(q)q.value='';
+  document.querySelectorAll('[data-qfilter]').forEach(b=>b.classList.toggle('active',b.dataset.qfilter==='all'));
+  render();
+}
+function applyQuickPaymentFilter(state,button){
+  filters.__paymentState=state;
+  document.querySelectorAll('[data-qfilter]').forEach(b=>b.classList.remove('active'));
+  if(button)button.classList.add('active');
+  render();
+}
+function paymentReportRows(mode){
+  let rows=participants.filter(passes);
+  if(mode==='complete')rows=participants.filter(p=>balanceFor(p)<=0.01);
+  if(mode==='unconfirmed')rows=participants.filter(p=>!p.payment_confirmed);
+  if(mode==='balance')rows=participants.filter(p=>balanceFor(p)>0.01);
+  return rows;
+}
+function exportPaymentReport(mode='visible'){
+  const rows=paymentReportRows(mode), ts=ticketList();
+  const heads=['ID','City','Name','Category','Age',...ts.map(t=>t.name),'Payment method','Paid EUR','Payment confirmed','Total EUR','Balance EUR','Payment status','Note'];
+  const lines=[heads.map(csv).join(',')];
+  rows.forEach(p=>lines.push([
+    p.legacyId,p.city,p.name,p.category,p.age,
+    ...ts.map(t=>p.tickets?.[t.id]?'Yes':'No'),
+    p.payment_method,money(p.paid),p.payment_confirmed?'Yes':'No',
+    money(totalFor(p)),money(balanceFor(p)),paymentStateLabel(p),p.note
+  ].map(csv).join(',')));
+  const names={visible:'current-filtered-list',complete:'fully-paid',unconfirmed:'payment-unconfirmed',balance:'outstanding-balance'};
+  download('\ufeff'+lines.join('\n'),`${names[mode]||'payment-report'}.csv`,'text/csv;charset=utf-8');
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  const q=document.getElementById('adminQuickSearch');
+  if(q)q.addEventListener('input',()=>{filters.__quick=q.value;render()});
+});
+
 function exportCSV(){let ts=ticketList(),shown=participants.filter(passes),heads=['Row','ID','City','Name','Category','Age',...ts.map(t=>t.name),'Payment method','Paid','Payment confirmed','Total','Balance','Note'];let lines=[heads.map(csv).join(',')];shown.forEach((p,i)=>lines.push([i+1,p.legacyId,p.city,p.name,p.category,p.age,...ts.map(t=>p.tickets?.[t.id]?1:0),p.payment_method,p.paid,p.payment_confirmed?'Yes':'No',totalFor(p),balanceFor(p),p.note].map(csv).join(',')));download('\ufeff'+lines.join('\n'),'tickets-v2.csv','text/csv;charset=utf-8')}
 const csv=v=>'"'+String(v??'').replaceAll('"','""')+'"';function exportJSON(){download(JSON.stringify({participants,tickets},null,2),'tickets-v2-backup.json','application/json')}function download(txt,name,type){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type}));a.download=name;a.click();URL.revokeObjectURL(a.href)}
 document.getElementById('importFile').onchange=e=>{let f=e.target.files[0];if(!f)return;let rd=new FileReader();rd.onload=async()=>{try{let o=JSON.parse(rd.result),rows=(o.participants||o.data||o).map(normalize);await set(ref(db,`${ROOT}/participants`),Object.fromEntries(rows.map(p=>[p.id,p])));if(o.tickets)await set(ref(db,`${ROOT}/tickets`),o.tickets)}catch(err){alert('فایل معتبر نیست')}};rd.readAsText(f)};
-Object.assign(window,{setFilter,upd,updTicket,addParticipant,delParticipant,clearFilters,openTickets,closeTickets,updateTicketDef,addTicket,deleteTicket,exportCSV,exportJSON});
+Object.assign(window,{setFilter,upd,updTicket,addParticipant,delParticipant,clearFilters,clearAllAdminFilters,applyQuickPaymentFilter,exportPaymentReport,openTickets,closeTickets,updateTicketDef,addTicket,deleteTicket,exportCSV,exportJSON});
 
 function normName(s){return String(s||'').trim().toLowerCase().replace(/\s+/g,' ')}
 async function restoreCsvPaymentsIfNeeded(raw){
